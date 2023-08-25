@@ -15,12 +15,25 @@ namespace test_jeu_tire
         public int laterX;
         public int laterY;
 
+        public bool moove = true;
 
         public int charg = 10;
 
         public void looseHP() 
         {
             pv = pv - 5;
+        }
+
+        public void scanmoove()
+        {
+            if(x == laterX ||  y == laterY)
+            {
+                moove = false;
+            }
+            else
+            {
+                moove = true;
+            }
         }
 
     }

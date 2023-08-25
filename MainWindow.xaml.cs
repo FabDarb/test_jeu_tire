@@ -24,6 +24,7 @@ namespace test_jeu_tire
     {
         int large = 30;
         int haut = 30;
+        bool wallOn = false;
 
         char[,] laBase;
         Rectangle[,] rec;
@@ -32,8 +33,8 @@ namespace test_jeu_tire
         public MainWindow()
         {
             InitializeComponent();
-            laBase = new char[haut, large];
-            rec = new Rectangle[haut, large];
+            laBase = new char[large, haut];
+            rec = new Rectangle[large, haut];
             maping();
 
         }
@@ -61,7 +62,7 @@ namespace test_jeu_tire
                     Rectangle rect = new Rectangle();
                     rect.Height = 15;
                     rect.Width = 15;
-                    switch (laBase[i,j])
+                    switch (laBase[i, j])
                     {
                         case '#':
                             rect.Fill = new SolidColorBrush(Colors.Black);
@@ -90,7 +91,7 @@ namespace test_jeu_tire
                     Grid.SetColumn(rect, j);
                     Grid.SetRow(rect, i);
                     monde.Children.Add(rect);
-                    rec[j, i] = rect;
+                    rec[i, j] = rect;
                 }
             }
         }
@@ -111,10 +112,11 @@ namespace test_jeu_tire
         }
         void beforeMove(Player p)
         {
-            if(laBase[p.y, p.x] == '#')
+            if(laBase[p.y, p.x] == '#' || laBase[p.y, p.x] == '2' || laBase[p.y, p.x] == '1')
             {
                 p.y = p.laterY;
                 p.x = p.laterX;
+                wallOn = true;
             }
             
         }
@@ -122,45 +124,39 @@ namespace test_jeu_tire
         {
             Player p1 = playerList[0];
             Player p2 = playerList[1];
+            keep_Last(p1);
+            keep_Last(p2);
             switch (e.Key)
             {
                 case Key.W:
-                    keep_Last(p1);
                     p1.y--;
                     beforeMove(p1);
                     break;
                 case Key.S:
-                    keep_Last(p1);
                     p1.y++;
                     beforeMove(p1);
                     break;
                 case Key.A:
-                    keep_Last(p1);
                     p1.x--;
                     beforeMove(p1);
                     break;
                 case Key.D:
-                    keep_Last(p1);
                     p1.x++;
                     beforeMove(p1);
                     break;
                 case Key.Up:
-                    keep_Last(p2);
                     p2.y--;
                     beforeMove(p2);
                     break;
                 case Key.Down:
-                    keep_Last(p2);
                     p2.y++;
                     beforeMove(p2);
                     break;
                 case Key.Left:
-                    keep_Last(p2);
                     p2.x--;
                     beforeMove(p2);
                     break;
                 case Key.Right:
-                    keep_Last(p2);
                     p2.x++;
                     beforeMove(p2);
                     break;
@@ -168,10 +164,27 @@ namespace test_jeu_tire
                     Dump();
                     break;
             }
-            laBase[p1.x, p1.y] = '1';
-            laBase[p2.x, p2.y] = '2';
-            laBase[p1.laterX, p1.laterY] = ' ';
-            laBase[p2.laterX, p2.laterY] = ' ';
+            p1.scanmoove();
+            p2.scanmoove();
+            laBase[p1.y, p1.x] = '1';
+            laBase[p2.y, p2.x] = '2';
+            if(wallOn == false)
+            {
+                laBase[p1.laterY, p1.laterX] = ' ';
+                laBase[p2.laterY, p2.laterX] = ' ';
+            }
+            else
+            {
+                wallOn = false;
+            }
+            if(p1.moove == false)
+            {
+                laBase[p1.y, p1.x] = '1';
+            }
+            if(p2.moove == false)
+            {
+                laBase[p2.y, p2.x] = '2';
+            }
             refresh();
         }
 
@@ -187,8 +200,8 @@ namespace test_jeu_tire
             {
                 for (int j = 0; j < haut; j++)
                 {
-                    Rectangle r = rec[j, i];
-                    switch (laBase[j,i])
+                    Rectangle r = rec[i, j];
+                    switch (laBase[i,j])
                     {
                         case '#':
                             r.Fill = new SolidColorBrush(Colors.Black);
